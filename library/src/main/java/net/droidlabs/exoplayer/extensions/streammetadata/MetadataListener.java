@@ -17,5 +17,5 @@
 package net.droidlabs.exoplayer.extensions.streammetadata;
 
 public interface MetadataListener {
-  void onMetadataRetrieved(String key, String value);
+    void onMetadataRetrieved(String key, String value);
 }

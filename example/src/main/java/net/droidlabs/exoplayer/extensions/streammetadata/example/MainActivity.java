@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -15,37 +16,43 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 
+import net.droidlabs.exoplayer.extensions.streammetadata.MetadataListener;
 import net.droidlabs.exoplayer.extensions.streammetadata.OkHttpDataSourceFactory;
 
 import okhttp3.OkHttpClient;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MetadataListener {
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-    Handler handler = new Handler();
+        Handler handler = new Handler();
 
-    SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(this,
-        new DefaultTrackSelector(), new DefaultLoadControl());
+        SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(this,
+                new DefaultTrackSelector());
 
-    player.setPlayWhenReady(true);
+        player.setPlayWhenReady(true);
 
-    DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-    OkHttpDataSourceFactory okHttpDataSourceFactory = new OkHttpDataSourceFactory(
-        new OkHttpClient(),
-        "SomeUserAgent",
-        bandwidthMeter);
+        DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+        OkHttpDataSourceFactory okHttpDataSourceFactory = new OkHttpDataSourceFactory(
+                new OkHttpClient(),
+                "SomeUserAgent",
+                bandwidthMeter, this);
 
-    DefaultDataSourceFactory factory = new DefaultDataSourceFactory(this, bandwidthMeter,
-        okHttpDataSourceFactory);
+        DefaultDataSourceFactory factory = new DefaultDataSourceFactory(this, bandwidthMeter,
+                okHttpDataSourceFactory);
 
-    MediaSource mediaSource = new ExtractorMediaSource(Uri.parse("http://195.150.20.9/RMFFM48"),
-        factory,
-        new DefaultExtractorsFactory(), handler, null);
+        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse("http://195.150.20.9/RMFFM48"),
+                factory,
+                new DefaultExtractorsFactory(), handler, null);
 
-    player.prepare(mediaSource, true, true);
-  }
+        player.prepare(mediaSource, true, true);
+    }
+
+    @Override
+    public void onMetadataRetrieved(String key, String value) {
+        Log.d("TAG", value);
+    }
 }
